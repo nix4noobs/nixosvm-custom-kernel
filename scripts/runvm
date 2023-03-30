@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+die () {
+    echo >&2 "$@"
+    exit 1
+}
+
+if [ "$#" -ne 1 ]; then
+ echo "USAGE ${0} <overlay img destination>"
+ die "1 argument required, $# provided"
+fi
+
+DST="$1"
+
+qemu-kvm \
+    -nodefaults \
+    -display "none" \
+    -machine "q35,accel=kvm,kernel-irqchip=split" \
+    -cpu "host" \
+    -smp "2" \
+    -device "intel-iommu,intremap=on" \
+    -netdev "user,id=net0,hostfwd=tcp::2089-:22" \
+    -device "virtio-net-pci,netdev=net0" \
+    -device "virtio-rng-pci" \
+    -drive "id=boot,file=${DST},format=qcow2,if=virtio,discard=unmap,media=disk" \
+    -m 2048 \
+    -serial "mon:stdio"

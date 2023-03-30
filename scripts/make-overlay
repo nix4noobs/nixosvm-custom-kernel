@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+die () {
+    echo >&2 "$@"
+    exit 1
+}
+
+if [ "$#" -ne 1 ]; then
+ echo "USAGE ${0} <overlay img destination>"
+ die "1 argument required, $# provided"
+fi
+
+DST="$1"
+
+qemu-img create \
+    -F qcow2 \
+    -b $(readlink -f ./result/nixos.qcow2) \
+    -f qcow2 \
+    "${DST}"
